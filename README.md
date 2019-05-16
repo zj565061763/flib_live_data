@@ -27,7 +27,7 @@ final FLiveData<int> number = FLiveData(0);
 // 赋值
 number.value = 1;
 
-// 监听值的变化
+// 添加观察者，监听值的变化
 number.addObserver((value) {}, this);
 ```
 
