@@ -4,7 +4,7 @@ import 'package:flib_lifecycle/flib_lifecycle.dart';
 typedef FLiveDataObserver<T> = void Function(T value);
 
 class FLiveData<T> {
-  final Map<FLiveDataObserver<T>, _ObserverWrapper<T>> _mapObserver = {};
+  final Map<Function, _ObserverWrapper<T>> _mapObserver = {};
   T _value;
 
   FLiveData(T value) : this._value = value;
@@ -41,13 +41,13 @@ class FLiveData<T> {
   /// - [lifecycleOwner] 观察者要绑定的生命周期
   ///   1. [lifecycleOwner] != null，则[FLifecycleEvent.onDestroy]事件后，会自动移除观察者
   ///   2. [lifecycleOwner] == null，则不会自动移除观察者
-  /// - [notifyAfterAdded] 添加观察者之后，如果[_value]不为null的话是否立即通知当前添加的观察者，默认true-是
-  /// - [notifyLazy] 延迟通知策略，是否生命周期状态大于等于[FLifecycleState.started]之后才通知，默认true-是
+  /// - [notifyAfterAdded] 添加观察者之后，如果[_value]不为null的话是否立即通知当前添加的观察者，默认true
+  /// - [notifyLazy] 延迟通知策略，是否生命周期状态大于等于[FLifecycleState.started]之后才通知，默认false
   void addObserver(
     FLiveDataObserver<T> observer,
     FLifecycleOwner lifecycleOwner, {
     bool notifyAfterAdded = true,
-    bool notifyLazy = true,
+    bool notifyLazy = false,
   }) {
     if (_mapObserver.containsKey(observer)) {
       return;
@@ -57,6 +57,9 @@ class FLiveData<T> {
     if (lifecycleOwner != null) {
       lifecycle = lifecycleOwner.getLifecycle();
       assert(lifecycle != null);
+      if (lifecycle.getCurrentState() == FLifecycleState.destroyed) {
+        return;
+      }
     }
 
     assert(notifyLazy != null);
@@ -85,7 +88,7 @@ class FLiveData<T> {
   /// 移除观察者
   ///
   /// - [observer] 要移除的观察者
-  void removeObserver(FLiveDataObserver<T> observer) {
+  void removeObserver(Function observer) {
     final _ObserverWrapper<T> wrapper = _mapObserver.remove(observer);
     if (wrapper != null) {
       wrapper.destroy();
