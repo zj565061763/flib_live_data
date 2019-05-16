@@ -18,3 +18,35 @@
 ```
 
 ## Example
+```dart
+// 创建LiveData
+final FLiveData<int> number = FLiveData(0);
+
+// 赋值
+number.value = 1;
+
+// 监听值的变化
+number.addObserver((value) {}, this);
+```
+
+```dart
+/// 添加观察者
+///
+/// - [observer] 观察者
+/// - [lifecycleOwner] 观察者要绑定的生命周期
+///   1. [lifecycleOwner] != null，则[FLifecycleEvent.onDestroy]事件后，会自动移除观察者
+///   2. [lifecycleOwner] == null，则不会自动移除观察者
+/// - [notifyAfterAdded] 添加观察者之后，如果[_value]不为null的话是否立即通知当前添加的观察者，默认true-是
+/// - [notifyLazy] 延迟通知策略，是否生命周期状态大于等于[FLifecycleState.started]之后才通知，默认true-是
+void addObserver(
+FLiveDataObserver<T> observer,
+FLifecycleOwner lifecycleOwner, {
+bool notifyAfterAdded = true,
+bool notifyLazy = true,
+})
+
+/// 移除观察者
+///
+/// - [observer] 要移除的观察者
+void removeObserver(FLiveDataObserver<T> observer)
+```
